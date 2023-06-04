@@ -1,7 +1,7 @@
 slint::include_modules!();
 use std::rc::Rc;
 use slint::{VecModel, Model, ModelRc};
-
+mod get_book_data;
 fn main() {
     let ui = MainPage::new().unwrap();
 
