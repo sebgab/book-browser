@@ -1,0 +1,143 @@
+import { ListView, LineEdit, Button, VerticalBox , HorizontalBox} from "std-widgets.slint";
+//import { AddBooksPage } from "add-book.slint";
+
+export struct BookData {
+    cover-image: image,
+    title: string,
+    description: string,
+    authors: [string],
+    owner: string,
+}
+
+export component AddBookButton inherits Rectangle { 
+    callback clicked();
+    in property <image> icon: @image-url("book-icon.png");
+
+    width: 65px;
+    height: 65px;
+
+    // Add a background circle
+    border-radius: self.width/2;
+    background: #2873ce;
+    
+    // The book icon tseld
+    Image {
+        source: icon;
+        width: parent.width * 0.7;
+        height: parent.height * 0.7;
+    }
+
+    // Make it so the button is clickable
+    TouchArea {
+        clicked => {
+            root.clicked();
+        }
+    }
+}
+
+export component BookViewHeader {
+        in-out property <bool> show-owner: true;
+
+        HorizontalBox {
+            Text { width: 10%;    horizontal-alignment: center; text: "Cover";       }
+            Text { width: 15%;    horizontal-alignment: center; text: "Name";        }
+            Text { width: 60%;    horizontal-alignment: center; text: "Description"; }
+            if show-owner: Text { horizontal-alignment: center; text: "Owner";      }
+        }
+
+        Rectangle {
+            y: 30px;
+            height: 3px;
+            background: black;
+            border-radius: 3px;
+            
+        }
+}
+
+export component BookView {
+    in property <image> book-cover;
+    in property <string> title;
+    in property <string> description;
+    in property <string> owner;
+    in property <bool> show-owner: true;
+   
+    HorizontalBox {
+        // Book cover
+        Image {
+            source: book-cover;
+            width: 10%;
+        }
+
+        // Name
+        Text {
+            text: title;
+            wrap: word-wrap;
+
+            width: 15%;
+            vertical-alignment: center;
+            horizontal-alignment: center;
+        }
+
+        // Description
+        Text {
+            text: description;
+            wrap: word-wrap;
+
+            width: show-owner ? 60% : 70%;
+            vertical-alignment: center;
+        }
+
+        // Owner
+        if show-owner:
+        Text {
+            text: owner;
+            wrap: word-wrap;
+
+            horizontal-alignment: left;
+            vertical-alignment: center;
+        }
+    }
+}
+
+export component MainPage inherits Window {
+    preferred-width: 800px;
+    preferred-height: 1000px;
+    
+    callback add-book-clicked();
+    in property <[BookData]> books;
+    in property <bool> show-owner: false;
+    
+    VerticalBox {
+        padding: 10px;
+                
+        // Search field
+        LineEdit {
+            font-size: 16px;
+            height: 30px;
+            placeholder-text: "Search";
+        }
+
+        // Conents header
+        BookViewHeader { show-owner: show-owner; }
+
+        // Contents page
+        ListView {
+            for data in books : BookView {
+                book-cover: @image-url("book-cover.jpg");
+                title: data.title;
+                description: data.description;
+                owner: data.owner;
+                show-owner: show-owner;
+            }
+        }
+    }
+
+    // Add book button
+    AddBookButton {
+        x: parent.width  - (self.width  * 2);
+        y: parent.height - (self.height * 2);
+        clicked => {
+            root.add-book-clicked();
+        }
+    }
+}
