@@ -2,7 +2,7 @@ use reqwest;
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
-struct BookDataFull { title: String,
+pub struct BookDataFull { title: String,
     subtitle: String,
     authors: Vec<String>,
     publisher: String,
@@ -92,10 +92,28 @@ fn parse_book_data_json(input_json: &str) -> Result<BookDataFull, std::io::Error
     return Ok(book_data_extracted);
 }
 
+pub async fn get_book_data(isbn: &str) -> Option<BookDataFull> {
+    let fetched_json: Result<String, reqwest::Error> = fetch_book_data(isbn).await;
+    let book_json: String;
+    match fetched_json {
+        Ok(result) => { book_json = result; },
+        Err(e) => { eprint!("Failed to fetch JSON from ISBN: {isbn} with error:\n\t{}", e); return None; }
+    }
+
+    let parsed_book_data: Result<BookDataFull, std::io::Error> = parse_book_data_json(&book_json);
+    let book_data: BookDataFull;
+    match parsed_book_data {
+        Ok(result) => { book_data = result; },
+        Err(e) => { eprintln!("Failed to parse JSON from ISBN: {isbn} with error:\n\t{}", e); return None; }
+    }
+
+    return Some(book_data);
+}
+
 #[cfg(test)]
 mod tests {
     use regex::Regex;
-    use super::{fetch_book_data, BookDataFull, parse_book_data_json};
+    use super::{fetch_book_data, BookDataFull, parse_book_data_json, get_book_data};
 
     #[tokio::test]
     async fn fetch_book_data_test() {
@@ -213,6 +231,24 @@ mod tests {
         };
 
         let result = parse_book_data_json(&json_to_parse).unwrap();
+        assert_eq!(result, expected_result);
+    }
+
+    #[tokio::test]
+    async fn get_book_data_test() {
+        let result = get_book_data("9781491927250").await.unwrap();
+
+        let expected_result: BookDataFull = BookDataFull {
+            title: "Programming Rust".to_string(),
+            subtitle: "Fast, Safe Systems Development".to_string(),
+            authors: vec!["Jim Blandy".to_string(), "Jason Orendorff".to_string()],
+            publisher: r#""O'Reilly Media, Inc.""#.to_string(),
+            published_date: "2017-11-21".to_string(),
+            description: r#"Rust is a new systems programming language that combines the performance and low-level control of C and C++ with memory safety and thread safety. Rust’s modern, flexible types ensure your program is free of null pointer dereferences, double frees, dangling pointers, and similar bugs, all at compile time, without runtime overhead. In multi-threaded code, Rust catches data races at compile time, making concurrency much easier to use. Written by two experienced systems programmers, this book explains how Rust manages to bridge the gap between performance and safety, and how you can take advantage of it. Topics include: How Rust represents values in memory (with diagrams) Complete explanations of ownership, moves, borrows, and lifetimes Cargo, rustdoc, unit tests, and how to publish your code on crates.io, Rust’s public package repository High-level features like generic code, closures, collections, and iterators that make Rust productive and flexible Concurrency in Rust: threads, mutexes, channels, and atomics, all much safer to use than in C or C++ Unsafe code, and how to preserve the integrity of ordinary code that uses it Extended examples illustrating how pieces of the language fit together"#.to_string(),
+            isbn: "9781491927250".to_string(),
+            thumbnail: "http://books.google.com/books/content?id=h8c_DwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api".to_string(),
+            text_snippet: "Written by two experienced systems programmers, this book explains how Rust manages to bridge the gap between performance and safety, and how you can take advantage of it.".to_string()
+        };
         assert_eq!(result, expected_result);
     }
 }
