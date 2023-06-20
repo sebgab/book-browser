@@ -1,15 +1,7 @@
 import { ListView, LineEdit, Button, VerticalBox , HorizontalBox} from "std-widgets.slint";
-//import { AddBooksPage } from "add-book.slint";
+import { BookData } from "book-data.slint";
 
-export struct BookData {
-    cover-image: image,
-    title: string,
-    description: string,
-    authors: [string],
-    owner: string,
-}
-
-export component AddBookButton inherits Rectangle { 
+component AddBookButton inherits Rectangle { 
     callback clicked();
     in property <image> icon: @image-url("book-icon.png");
 
@@ -35,7 +27,7 @@ export component AddBookButton inherits Rectangle {
     }
 }
 
-export component BookViewHeader {
+component BookViewHeader {
         in-out property <bool> show-owner: true;
 
         HorizontalBox {
@@ -54,7 +46,7 @@ export component BookViewHeader {
         }
 }
 
-export component BookView {
+component BookView {
     in property <image> book-cover;
     in property <string> title;
     in property <string> description;
@@ -99,12 +91,9 @@ export component BookView {
     }
 }
 
-export component MainPage inherits Window {
-    preferred-width: 800px;
-    preferred-height: 1000px;
-    
+export component MainPage inherits Rectangle {
     callback add-book-clicked();
-    in property <[BookData]> books;
+    in-out property <[BookData]> books;
     in property <bool> show-owner: false;
     
     VerticalBox {

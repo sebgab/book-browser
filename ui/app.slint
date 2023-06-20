@@ -1,0 +1,19 @@
+import { MainPage } from "main-page.slint";
+import { BookData } from "book-data.slint";
+
+export component App inherits Window {
+    callback add-book-clicked();
+    preferred-width: 800px;
+    preferred-height: 1000px;
+
+    in-out property <[BookData]> books;
+    in property <bool> show-owner: false;
+    
+    MainPage {
+        books: books;
+        show-owner: show-owner;
+        add-book-clicked => {
+            root.add-book-clicked();
+        }
+    }
+}

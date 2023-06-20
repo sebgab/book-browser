@@ -3,7 +3,7 @@ use std::rc::Rc;
 use slint::{VecModel, Model, ModelRc};
 mod get_book_data;
 fn main() {
-    let ui = MainPage::new().unwrap();
+    let ui = App::new().unwrap();
 
     // Get the pre-existing list of books
     let books: Vec<BookData> = ui.get_books().iter().collect();
