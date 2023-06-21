@@ -1,0 +1,29 @@
+import { ListView, LineEdit, Button, VerticalBox , HorizontalBox} from "std-widgets.slint";
+import { BookData } from "book-data.slint";
+
+export component AddBookPage {
+    callback isbn-entered(string);
+    //callback isbn-changed(string);
+
+    // ISBN entry area
+    HorizontalBox {
+        width: parent.width;
+        height: parent.height;
+
+        // ISBN field
+        entry := LineEdit {
+            placeholder-text: "ISBN";
+            accepted => { root.isbn-entered(self.text); }
+            //edited   => { root.isbn-changed(self.text); }
+            width: 90%;
+        }
+
+        // Enter button
+        Button {
+            text: "Enter";
+            clicked => { root.isbn-entered(entry.text); }
+        }
+    }
+
+    // TODO: Manual book entry
+}

@@ -2,16 +2,19 @@ use reqwest;
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct BookDataFull { title: String,
-    subtitle: String,
-    authors: Vec<String>,
-    publisher: String,
-    published_date: String,
-    description: String,
-    isbn: String,
-    thumbnail: String,
-    text_snippet: String
+pub struct BookDataFull {
+  pub title: String,
+  pub subtitle: String,
+  pub authors: Vec<String>,
+  pub publisher: String,
+  pub published_date: String,
+  pub description: String,
+  pub isbn: String,
+  pub thumbnail: String,
+  pub text_snippet: String
 }
+
+// TODO: Add cover downloading
 
 #[derive(Debug, Deserialize)]
 struct BookJsonStart {
@@ -97,14 +100,14 @@ pub async fn get_book_data(isbn: &str) -> Option<BookDataFull> {
     let book_json: String;
     match fetched_json {
         Ok(result) => { book_json = result; },
-        Err(e) => { eprint!("Failed to fetch JSON from ISBN: {isbn} with error:\n\t{}", e); return None; }
+        Err(e) => { eprintln!("Failed to fetch JSON from ISBN: `{isbn}` with error:\n\t{}", e); return None; }
     }
 
     let parsed_book_data: Result<BookDataFull, std::io::Error> = parse_book_data_json(&book_json);
     let book_data: BookDataFull;
     match parsed_book_data {
         Ok(result) => { book_data = result; },
-        Err(e) => { eprintln!("Failed to parse JSON from ISBN: {isbn} with error:\n\t{}", e); return None; }
+        Err(e) => { eprintln!("Failed to parse JSON from ISBN: `{isbn}` with error:\n\t{}", e); return None; }
     }
 
     return Some(book_data);

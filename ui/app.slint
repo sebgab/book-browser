@@ -1,19 +1,41 @@
 import { MainPage } from "main-page.slint";
 import { BookData } from "book-data.slint";
+import { AddBookPage } from "add-book-page.slint";
+
 
 export component App inherits Window {
-    callback add-book-clicked();
+    callback lookup-isbn(string);
     preferred-width: 800px;
     preferred-height: 1000px;
 
     in-out property <[BookData]> books;
     in property <bool> show-owner: false;
+    in-out property <int> page: 0; // TODO: Replace with enum
     
-    MainPage {
-        books: books;
-        show-owner: show-owner;
-        add-book-clicked => {
-            root.add-book-clicked();
+    Rectangle {
+        width: parent.width;
+        height: parent.height;
+
+        if page == 0:
+        MainPage {
+            width: parent.width;
+            height: parent.height;
+            books: books;
+            show-owner: show-owner;
+            add-book-clicked => {
+                //root.add-book-clicked();
+                page = 1;
+            }
+        }
+        
+        if page == 1:
+        AddBookPage {
+            width: parent.width;
+            height: parent.height;
+            isbn-entered (isbn) => {
+                root.lookup-isbn(isbn);
+                page = 0;
+            }
         }
     }
 }
